@@ -7,171 +7,209 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#15131f;--panel:#221f33;--egg:#f0a23b;--duck:#ffd23f;--ok:#7bd88f;--tx:#f4f0ff;--mut:#9a94b8}
+:root{--bg:#0d1a2b;--pn:#162a42;--pn2:#1f3a5a;--tx:#eaf4ff;--mu:#8fa8c4;--am:#ffc247;--tl:#2bd4b5;
+--common:#8fa8c4;--uncommon:#5fd38d;--rare:#4aa8ff;--epic:#b07bff;--legendary:#ffc247}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--tx);font-family:Cairo,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:env(safe-area-inset-top) 16px 24px;user-select:none}
-.top{width:100%;max-width:420px;display:flex;justify-content:space-between;align-items:center;padding:14px 0;font-weight:800;font-size:20px}
-.top small{color:var(--mut);font-weight:500;font-size:14px;display:block}
-.stage{width:100%;max-width:420px;background:var(--panel);border-radius:28px;padding:28px 16px 20px;text-align:center}
-#egg{width:150px;height:auto;cursor:pointer;transition:transform .08s}
-#egg:active{transform:scale(.92) rotate(-4deg)}
-#col img{width:84%}
-.row img{width:48px;height:48px}
-.row .nm{display:flex;align-items:center;gap:10px}
-.bar{height:12px;background:#352f50;border-radius:8px;margin:18px 8px 10px;overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--egg);transition:width .15s}
-#msg{min-height:26px;color:var(--mut)}
-h2{width:100%;max-width:420px;font-size:18px;margin:26px 0 10px}
-#col{width:100%;max-width:420px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-#col div{background:var(--panel);border-radius:14px;aspect-ratio:1;display:grid;place-items:center;font-size:30px}
-#col .empty{opacity:.35;font-size:20px}
-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--panel);padding:8px 8px calc(8px + env(safe-area-inset-bottom));gap:8px}
-nav button{flex:1;margin:0;padding:10px 2px;font-size:14px;background:transparent;color:var(--mut)}
-.seg{display:flex;gap:8px;margin-bottom:12px}.seg button{margin:0;background:var(--panel);color:var(--mut)}.seg button.on{background:var(--duck);color:#2b2200}
-.row.me{outline:2px solid var(--duck)}.rk{min-width:28px;font-weight:800;color:var(--mut)}
-nav button.on{background:var(--bg);color:var(--duck)}
-body{padding-bottom:90px}
-.tab{width:100%;max-width:420px;display:none;flex-direction:column;align-items:center}
-.tab.on{display:flex}
-.row{width:100%;background:var(--panel);border-radius:16px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.row button{margin:0;padding:8px 14px;font-size:14px}
-.row button[disabled]{background:#352f50;color:var(--mut)}
-button{font:inherit;font-weight:800;border:0;border-radius:14px;padding:12px 18px;background:var(--duck);color:#2b2200;margin-top:14px}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Cairo,sans-serif;user-select:none;
+padding:env(safe-area-inset-top) 12px 96px}
+header{max-width:440px;margin:0 auto;padding:10px 0 6px}
+.r1{display:flex;justify-content:space-between;align-items:center;font-weight:800}
+.coin{display:inline-block;width:16px;height:16px;border-radius:50%;background:var(--am);box-shadow:inset -3px -3px 0 #d49a1a;vertical-align:-2px;margin-inline-end:6px}
+.bar{height:8px;background:var(--pn2);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;width:0;transition:width .2s}
+.sm{font-size:12px;color:var(--mu);display:flex;justify-content:space-between;margin:2px 0 6px}
+.tab{display:none;max-width:440px;margin:0 auto}.tab.on{display:block}
+.stage{background:linear-gradient(#1b4a68,#10263c);border-radius:20px;padding:12px;margin:8px 0;display:flex;align-items:flex-end;gap:12px;position:relative;overflow:hidden}
+.stage .shelf{position:absolute;left:0;right:0;bottom:0;height:18px;background:#0b3a46}
+.stage img{width:84px;position:relative;z-index:1}
+.stage .info{flex:1;position:relative;z-index:1;padding-bottom:22px}
+.board{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;background:var(--pn);border-radius:18px;padding:8px}
+.cell{aspect-ratio:1;border:0;background:var(--pn2);border-radius:10px;padding:3px;display:grid;place-items:center}
+.cell img{width:92%;pointer-events:none;transition:transform .08s}.cell:active img{transform:scale(.82)}
+.hint{color:var(--mu);font-size:13px;text-align:center;margin:8px 0}
+h2{font-size:17px;margin:14px 0 8px}
+.row{background:var(--pn);border-radius:14px;padding:10px 12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.row.me{outline:2px solid var(--am)}.row img{width:44px}.nm{display:flex;align-items:center;gap:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card{background:var(--pn);border-radius:16px;padding:10px;text-align:center;border:2px solid var(--c,var(--common))}
+.card img{width:70px}.card b{display:block;font-size:14px}.card small{color:var(--mu);display:block}
+.tag{font-size:12px;color:var(--c)}
+button{font:inherit;font-weight:800;border:0;border-radius:12px;padding:8px 14px;background:var(--am);color:#2b2200}
+button[disabled]{background:var(--pn2);color:var(--mu)}
+.seg{display:flex;gap:8px;margin-bottom:10px}.seg button{flex:1;background:var(--pn);color:var(--mu)}.seg button.on{background:var(--am);color:#2b2200}
+#toast{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));max-width:416px;margin:0 auto;background:#000d;color:#fff;border-radius:12px;padding:10px 14px;text-align:center;opacity:0;transition:opacity .2s;pointer-events:none}
+#toast.on{opacity:1}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--pn);display:flex;gap:4px;padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+nav button{flex:1;padding:10px 0;font-size:14px;background:transparent;color:var(--mu)}nav button.on{background:var(--bg);color:var(--am)}
+.dw{position:relative;display:block;width:70px;margin:0 auto}.dw img{width:100%!important;display:block}.dw .ov{position:absolute;left:0;top:0}
+.stage .dw{width:84px;margin:0;position:relative;z-index:1}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}.chip{padding:6px 10px;font-size:13px;background:var(--pn);color:var(--tx)}.chip.on{background:var(--am);color:#2b2200}
+.disc{color:var(--tl);font-size:12px}.ms{opacity:.55}.ms.ok{opacity:1}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
-<div class="top">
-  <div id="user">مرحباً</div>
-  <div>🪙 <span id="coins">0</span><small>المستوى <span id="lvl">1</span></small></div>
-</div>
+<header>
+  <div class="r1"><span id="who">المستوى 1</span><span><i class="coin"></i><span id="coins">0</span></span></div>
+  <div class="bar" style="margin-top:6px"><i id="xpb" style="background:var(--tl)"></i></div>
+  <div class="sm"><span>الخبرة</span><span>الطاقة <b id="en">0/50</b></span></div>
+  <div class="bar"><i id="enb" style="background:var(--am)"></i></div>
+</header>
 
-<div class="tab on" id="t-game"><div class="stage">
-  <img id="egg" src="/static/ducks/egg.svg" alt="بيضة" draggable="false">
-  <div class="bar"><i id="fill"></i></div>
-  <div id="msg">اضغط على البيضة لتفقس</div>
-  <button id="claim">جمع العملات اليومية</button>
-</div>
+<section class="tab on" id="t-eggs">
+  <div class="stage"><div class="shelf"></div><div id="feat" class="dw"></div><div class="info"><b id="featn"></b><div class="sm"><span>الفقس التالي</span><span id="mt">0/40</span></div><div class="bar"><i id="mb" style="background:var(--epic)"></i></div></div></div>
+  <div class="board" id="board"></div>
+  <div class="row" style="margin-top:8px"><span id="evline"></span><button id="auto">كسر تلقائي</button></div>
+  <div class="hint">اضغط على 3 بيضات متجاورة أو أكثر من اللون نفسه لكسرها</div>
+</section>
 
-<div class="row" style="margin-top:12px"><span id="incinfo"></span><button id="collect">اجمع</button></div>
-<h2>مجموعة البط (<span id="n">0</span>)</h2>
-<div id="col"></div></div>
-<div class="tab" id="t-shop"><h2>سوق البط</h2><div id="shop" style="width:100%"></div></div>
-<div class="tab" id="t-board"><h2>الترتيب</h2>
-  <div class="seg"><button class="on" data-by="coins">الأغنى</button><button data-by="ducks">الأكثر بطاً</button></div>
-  <div id="board" style="width:100%"></div>
-  <div class="row me" id="myrank" style="margin-top:6px"></div>
-</div>
-<div class="tab" id="t-tasks"><h2>المهام</h2><div id="tasks" style="width:100%"></div></div>
-<div class="tab" id="t-friends"><h2>الأصدقاء</h2>
+<section class="tab" id="t-ducks">
+  <div class="row"><span>الدخل <b id="inc">0</b> عملة/ساعة، المتراكم <b id="pend">0</b></span><button id="collect">اجمع</button></div>
+  <h2>كنز العناصر</h2><div id="items" class="chips"></div>
+  <h2>بطاتي (<span id="dn">0</span>)</h2><div class="grid" id="dgrid"></div>
+</section>
+
+<section class="tab" id="t-market"><h2>عروض السوق</h2><div class="sm"><span>تتجدد بعد</span><b id="shopt"></b></div><div id="shop"></div></section>
+
+<section class="tab" id="t-rank"><h2>الترتيب</h2>
+  <div class="seg"><button class="on" data-by="coins">الأغنى</button><button data-by="ducks">الأكثر بطاً</button><button data-by="event">السباق</button></div>
+  <div id="board2"></div><div class="row me" id="myrank"></div></section>
+
+<section class="tab" id="t-tasks">
+  <h2 id="evname">السباق</h2>
+  <div class="row"><span>نقاطك <b id="evs">0</b> بيضة، ينتهي بعد <b id="evt"></b></span><button id="evclaim">استلم</button></div><div id="evm"></div>
+  <h2>المهام</h2><div id="tasks"></div>
+  <div class="row"><span>المكافأة اليومية (100 عملة)</span><button id="claim">استلم</button></div>
+  <h2>الأصدقاء</h2>
   <div class="row"><span>عدد المدعوين</span><b id="refs">0</b></div>
   <div class="row"><span id="refinfo"></span></div>
-  <button id="share">دعوة صديق</button>
-  <button id="copy" style="background:var(--panel);color:var(--tx)">نسخ الرابط</button>
-</div>
-<nav><button class="on" data-t="game">اللعبة</button><button data-t="shop">السوق</button><button data-t="board">الترتيب</button><button data-t="tasks">المهام</button><button data-t="friends">الأصدقاء</button></nav>
+  <div style="display:flex;gap:8px"><button id="share" style="flex:1">دعوة صديق</button><button id="copy" style="flex:1;background:var(--pn);color:var(--tx)">نسخ الرابط</button></div>
+</section>
+
+<div id="toast"></div>
+<nav><button data-t="market">السوق</button><button class="on" data-t="eggs">بيض</button><button data-t="ducks">بط</button><button data-t="rank">الترتيب</button><button data-t="tasks">المهام</button></nav>
 
 <script>
 const tg = window.Telegram?.WebApp;
-if (tg){ tg.ready(); tg.expand(); tg.setHeaderColor?.('#15131f'); tg.setBackgroundColor?.('#15131f'); }
-
+if (tg){ tg.ready(); tg.expand(); tg.setHeaderColor?.('#0d1a2b'); tg.setBackgroundColor?.('#0d1a2b'); }
 const $ = id => document.getElementById(id);
 const buzz = t => tg?.HapticFeedback?.impactOccurred(t);
-let st = {coins:0, taps:0, ducks:[], taps_to_hatch:10, next_claim:0, income:0, pending:0, cap_hours:3};
+const RN = {common:"عادي",uncommon:"غير شائع",rare:"نادر",epic:"ملحمي",legendary:"أسطوري"};
+const ORDER = ["common","uncommon","rare","epic","legendary"];
+const hdr = () => ({Authorization:"tma "+(tg?.initData||"")});
+let st = null, busy = false, boardBy = "coins", tt, sel = null;
+
+function h(t,c,x){ const e=document.createElement(t); if(c) e.className=c; if(x!=null) e.textContent=x; return e; }
+function im(n){ const i=document.createElement("img"); i.src="/static/ducks/"+n+".svg"; i.alt=""; i.draggable=false; return i; }
+function dk(t,it){ const w=h("div","dw"); w.appendChild(im(t)); if(it){ const o=im("i_"+it); o.className="ov"; w.appendChild(o); } return w; }
+function fmt(s){ s=Math.max(0,Math.floor(s)); const p=n=>String(n).padStart(2,"0"); return p(Math.floor(s/3600))+":"+p(Math.floor(s%3600/60))+":"+p(s%60); }
+function toast(m){ if(!m) return; const t=$("toast"); t.textContent=m; t.classList.add("on"); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove("on"),2600); }
 
 async function api(path, method="GET"){
+  if (busy) return; busy = true;
   try{
-    const r = await fetch("/api/"+path, {method, headers:{Authorization:"tma "+(tg?.initData||"")}});
+    const r = await fetch("/api/"+path, {method, headers:hdr()});
     if(!r.ok) throw new Error(r.status);
     st = await r.json(); st._t = Date.now();
-    if (st.msg) $("msg").textContent = st.msg;
-  }catch(e){ $("msg").textContent = "تعذر الاتصال بالسيرفر، حاول مرة أخرى"; }
-  render();
+    render(); toast(st.msg);
+  }catch(e){ toast("تعذر الاتصال بالسيرفر، حاول مرة أخرى"); }
+  busy = false;
 }
 
-function updateInc(){
-  const full = st.income * st.cap_hours;
-  const dt = (Date.now() - (st._t || Date.now())) / 1000;
-  const p = Math.floor(Math.min(st.pending + dt * st.income / 3600, full));
-  $("incinfo").textContent = "الدخل " + st.income + " عملة/ساعة، المتراكم " + p + (full && p >= full ? " (ممتلئ، اجمعه)" : "");
-  $("collect").disabled = p < 1;
-}
+function best(){ let b=null, s=-1; (st.ducks||[]).forEach(d=>{ const v=ORDER.indexOf(st.types[d.t].rarity)*100+d.lv; if(v>s){s=v;b=d;} }); return b; }
 
 function render(){
-  updateInc();
+  $("who").textContent = (st.name?st.name+"، ":"") + "المستوى " + st.level;
   $("coins").textContent = st.coins;
-  $("lvl").textContent = 1 + Math.floor(st.ducks.length/5);
-  $("fill").style.width = (st.taps/st.taps_to_hatch*100)+"%";
-  $("egg").src = "/static/ducks/" + (st.taps > st.taps_to_hatch/2 ? "egg_crack" : "egg") + ".svg";
-  $("n").textContent = st.ducks.length;
-  if (!st.msg) $("msg").textContent = st.taps ? "باقي "+(st.taps_to_hatch-st.taps)+" ضغطات" : "اضغط على البيضة لتفقس";
-  if (st.name) $("user").textContent = "مرحباً " + st.name;
-  $("refs").textContent = st.refs||0;
-  $("refinfo").textContent = "تحصل على " + (st.ref_bonus||0) + " عملة عن كل صديق ينضم برابطك";
-  $("tasks").innerHTML = "";
-  (st.tasks||[]).forEach(t => {
-    const r = document.createElement("div"); r.className = "row";
-    r.innerHTML = "<span></span><button></button>";
-    r.firstChild.textContent = t.title + " (+" + t.reward + ")";
-    const b = r.lastChild; b.textContent = t.done ? "تم" : "استلم"; b.disabled = t.done;
-    b.onclick = () => api("task/"+t.id, "POST");
-    $("tasks").appendChild(r);
+  $("xpb").style.width = st.xp_in/st.xp_need*100+"%";
+  $("mt").textContent = st.meter+"/"+st.hatch_at; $("mb").style.width = st.meter/st.hatch_at*100+"%";
+  const f = best(), fe = $("feat"); fe.innerHTML = ""; fe.appendChild(im(f?f.t:"egg")); if(f&&f.it){ const o=im("i_"+f.it); o.className="ov"; fe.appendChild(o); }
+  $("featn").textContent = f ? st.types[f.t].name+" - مستوى "+f.lv : "اكسر البيض لتفقس أول بطة";
+  const b = $("board"); b.innerHTML = "";
+  st.board.forEach((row,r)=>row.forEach((k,c)=>{
+    const cell = h("button","cell"); cell.setAttribute("aria-label","بيضة"); cell.appendChild(im(k<0?"lock":"e"+k));
+    if(k>=0) cell.onclick = () => { buzz("light"); api("pop/"+r+"/"+c,"POST"); };
+    b.appendChild(cell);
+  }));
+  $("inc").textContent = st.income; $("dn").textContent = st.ducks.length;
+  const g = $("dgrid"); g.innerHTML = "";
+  st.ducks.forEach((d,i)=>{
+    const ty = st.types[d.t], c = h("div","card"); c.style.setProperty("--c","var(--"+ty.rarity+")");
+    c.appendChild(dk(d.t,d.it)); c.appendChild(h("b",null,ty.name));
+    const tag = h("span","tag",RN[ty.rarity]+" - مستوى "+d.lv); c.appendChild(tag);
+    c.appendChild(h("small",null,"+"+d.income+" عملة/ساعة"));
+    const u = h("button",null, d.cost ? "ترقية "+d.cost : "أقصى مستوى"); u.disabled = !d.cost || st.coins<d.cost;
+    u.style.marginTop="6px"; u.onclick = () => api("upgrade/"+i,"POST"); c.appendChild(u);
+    if(d.it){ const q=h("button",null,"إزالة "+st.item_info[d.it].name); q.style.cssText="margin-top:6px;background:var(--pn2);color:var(--tx);font-size:12px"; q.onclick=()=>api("equip/"+i+"/none","POST"); c.appendChild(q); }
+    else if(sel && st.items[sel]){ const q=h("button",null,"ضع "+st.item_info[sel].name); q.style.cssText="margin-top:6px;background:var(--tl);font-size:12px"; q.onclick=()=>{ const k=sel; sel=null; api("equip/"+i+"/"+k,"POST"); }; c.appendChild(q); }
+    g.appendChild(c);
   });
-  const shop = $("shop"); shop.innerHTML = "";
-  (st.shop||[]).forEach(it => {
-    const r = document.createElement("div"); r.className = "row";
-    r.innerHTML = '<span class="nm"><img alt=""><span></span></span><button></button>';
-    r.querySelector("img").src = "/static/ducks/" + it.id + ".svg";
-    r.querySelector(".nm span").textContent = ((st.names||{})[it.id] || it.id) + " (+" + it.income + "/ساعة)";
-    const b = r.lastChild; b.textContent = "🪙 " + it.price; b.disabled = st.coins < it.price;
-    b.onclick = () => api("buy/"+it.id, "POST");
-    shop.appendChild(r);
+  const it = $("items"); it.innerHTML = "";
+  const ks = Object.keys(st.items);
+  if(!ks.length) it.appendChild(h("small",null,"اكسر البيض لتجد عناصر، أو اشترها من السوق"));
+  ks.forEach(k=>{ const inf=st.item_info[k], b=h("button","chip"+(sel===k?" on":""),inf.name+" ×"+st.items[k]+" (+"+inf.bonus+"%)"); b.style.borderBottom="3px solid var(--"+inf.rarity+")"; b.onclick=()=>{ sel = sel===k ? null : k; render(); }; it.appendChild(b); });
+  const s = $("shop"); s.innerHTML = "";
+  st.offers.forEach(o=>{
+    const r = h("div","row"), n = h("span","nm");
+    n.appendChild(o.kind==="duck" ? dk(o.ref,"") : im("i_"+o.ref)); n.firstChild.style.width="44px";
+    const d = h("span"); d.appendChild(h("b",null,o.name));
+    const t2 = h("small",null,RN[o.rarity]+(o.kind==="duck" ? "" : " - عنصر")); t2.style.cssText="display:block;color:var(--"+o.rarity+")"; d.appendChild(t2);
+    if(o.disc){ d.appendChild(h("small","disc","خصم "+o.disc+"%")); d.lastChild.style.display="block"; }
+    n.appendChild(d);
+    const bt = h("button",null,o.bought ? "تم" : o.price); bt.disabled = o.bought || st.coins<o.price; bt.onclick = () => api("offer/"+o.i,"POST");
+    r.appendChild(n); r.appendChild(bt); s.appendChild(r);
   });
-  const col = $("col"); col.innerHTML = "";
-  const slots = Math.max(15, Math.ceil(st.ducks.length/5)*5);
-  for (let i=0;i<slots;i++){
-    const d = document.createElement("div");
-    if (st.ducks[i]) d.innerHTML = '<img src="/static/ducks/'+st.ducks[i]+'.svg" alt="">'; else { d.className="empty"; d.innerHTML='<img src="/static/ducks/egg.svg" alt="">'; }
-    col.appendChild(d);
-  }
+  const ev = st.event; $("evname").textContent = ev.name; $("evs").textContent = ev.score; $("evline").textContent = ev.name+": "+ev.score+" بيضة";
+  $("evclaim").disabled = !ev.milestones.some(m=>!m.claimed && ev.score>=m.need);
+  const em = $("evm"); em.innerHTML = "";
+  ev.milestones.forEach(m=>{ const r = h("div","row ms"+(ev.score>=m.need?" ok":"")); r.appendChild(h("span",null,m.need+" بيضة"+(m.claimed?" (تم)":""))); r.appendChild(h("b",null,"+"+m.reward)); em.appendChild(r); });
+  const tk = $("tasks"); tk.innerHTML = "";
+  st.tasks.forEach(t=>{
+    const r = h("div","row"); r.appendChild(h("span",null,t.title+" (+"+t.reward+")"));
+    const b2 = h("button",null,t.done?"تم":"استلم"); b2.disabled = t.done; b2.onclick = () => api("task/"+t.id,"POST");
+    r.appendChild(b2); tk.appendChild(r);
+  });
+  $("refs").textContent = st.refs; $("refinfo").textContent = "تحصل على "+st.ref_bonus+" عملة عن كل صديق ينضم برابطك";
+  tick();
 }
 
-$("egg").addEventListener("click", () => { buzz("light"); api("tap","POST"); });
-$("collect").addEventListener("click", () => api("collect","POST"));
-setInterval(updateInc, 1000);
-$("claim").addEventListener("click", () => api("claim","POST"));
-let boardBy = "coins";
+function tick(){
+  if(!st) return; const d = (Date.now()-st._t)/1000;
+  $("shopt").textContent = fmt(st.offers_ends_in-d); $("evt").textContent = fmt(st.event.ends_in-d);
+  const e = Math.min(st.energy_max, st.energy + d/st.energy_sec);
+  $("en").textContent = Math.floor(e)+"/"+st.energy_max; $("enb").style.width = e/st.energy_max*100+"%";
+  const cap = st.income*st.cap_hours, p = Math.floor(Math.min(st.pending + d*st.income/3600, cap));
+  $("pend").textContent = p + (cap && p>=cap ? " (ممتلئ)" : ""); $("collect").disabled = p<1;
+}
+
 async function loadBoard(by){
   boardBy = by;
-  document.querySelectorAll(".seg button").forEach(x => x.classList.toggle("on", x.dataset.by === by));
+  document.querySelectorAll(".seg button").forEach(x=>x.classList.toggle("on",x.dataset.by===by));
   try{
-    const r = await fetch("/api/leaderboard?by="+by, {headers:{Authorization:"tma "+(tg?.initData||"")}});
-    if(!r.ok) throw new Error(r.status);
-    const d = await r.json(), unit = by === "coins" ? "🪙 " : "🦆 ";
-    $("board").innerHTML = "";
-    d.top.forEach(t => {
-      const row = document.createElement("div"); row.className = "row" + (t.me ? " me" : "");
-      row.innerHTML = '<span><b class="rk"></b> <span class="nm2"></span></span><b class="v"></b>';
-      row.querySelector(".rk").textContent = t.rank;
-      row.querySelector(".nm2").textContent = t.name;
-      row.querySelector(".v").textContent = unit + t.value;
-      $("board").appendChild(row);
-    });
-    $("myrank").textContent = "ترتيبك: " + d.me.rank + "  |  " + unit + d.me.value;
-  }catch(e){ $("board").textContent = "تعذر تحميل الترتيب"; }
+    const r = await fetch("/api/leaderboard?by="+by,{headers:hdr()}); if(!r.ok) throw 0;
+    const d = await r.json(), unit = by==="coins" ? "عملات " : by==="ducks" ? "بطات " : "بيضات ";
+    $("board2").innerHTML = "";
+    d.top.forEach(t=>{ const row = h("div","row"+(t.me?" me":"")); row.appendChild(h("span",null,t.rank+". "+t.name)); row.appendChild(h("b",null,unit+t.value)); $("board2").appendChild(row); });
+    $("myrank").textContent = "ترتيبك: "+d.me.rank+" | "+unit+d.me.value;
+  }catch(e){ $("board2").textContent = "تعذر تحميل الترتيب"; }
 }
-document.querySelectorAll(".seg button").forEach(b => b.onclick = () => loadBoard(b.dataset.by));
-document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
-  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x===b));
-  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.id==="t-"+b.dataset.t));
-  if (b.dataset.t === "board") loadBoard(boardBy);
+
+document.querySelectorAll("nav button").forEach(b=>b.onclick = () => {
+  document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x===b));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.id==="t-"+b.dataset.t));
+  if(b.dataset.t==="rank") loadBoard(boardBy);
 });
+document.querySelectorAll(".seg button").forEach(b=>b.onclick = () => loadBoard(b.dataset.by));
+$("collect").onclick = () => api("collect","POST");
+$("auto").onclick = () => api("auto","POST");
+$("evclaim").onclick = () => api("ev_claim","POST");
+$("claim").onclick = () => api("claim","POST");
 $("share").onclick = () => {
-  if (!st.ref_link){ $("refinfo").textContent = "رابط الدعوة غير مفعّل بعد على السيرفر"; return; }
-  const u = "https://t.me/share/url?url=" + encodeURIComponent(st.ref_link) + "&text=" + encodeURIComponent("تعال افقس البيض معي في مزرعة البط!");
+  if(!st.ref_link){ toast("رابط الدعوة غير مفعّل بعد على السيرفر"); return; }
+  const u = "https://t.me/share/url?url="+encodeURIComponent(st.ref_link)+"&text="+encodeURIComponent("تعال اكسر البيض معي في مزرعة البط!");
   tg ? tg.openTelegramLink(u) : window.open(u);
 };
-$("copy").onclick = () => { if (st.ref_link){ navigator.clipboard?.writeText(st.ref_link); $("refinfo").textContent = "تم نسخ الرابط"; } };
+$("copy").onclick = () => { if(st.ref_link){ navigator.clipboard?.writeText(st.ref_link); toast("تم نسخ الرابط"); } };
+setInterval(tick,1000);
 api("state");
 </script>
 </body>
