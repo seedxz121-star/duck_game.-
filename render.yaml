@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: duck-game          # يحدد الرابط: https://duck-game.onrender.com (قد يُضاف لاحقة إن كان الاسم مأخوذاً)
+    runtime: python
+    plan: starter            # القرص الدائم يتطلب خطة مدفوعة
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    disk:
+      name: data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DB_PATH
+        value: /var/data/game.db
+      - key: BOT_TOKEN
+        sync: false          # تُدخل قيمته في لوحة Render، لا تضعه في الملف
+      - key: BOT_USERNAME
+        sync: false
+      - key: WEBAPP_URL
+        sync: false
+      - key: WEBHOOK_SECRET
+        sync: false

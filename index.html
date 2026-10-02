@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>مزرعة البط</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#15131f;--panel:#221f33;--egg:#f0a23b;--duck:#ffd23f;--ok:#7bd88f;--tx:#f4f0ff;--mut:#9a94b8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Cairo,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:env(safe-area-inset-top) 16px 24px;user-select:none}
+.top{width:100%;max-width:420px;display:flex;justify-content:space-between;align-items:center;padding:14px 0;font-weight:800;font-size:20px}
+.top small{color:var(--mut);font-weight:500;font-size:14px;display:block}
+.stage{width:100%;max-width:420px;background:var(--panel);border-radius:28px;padding:28px 16px 20px;text-align:center}
+#egg{width:150px;height:auto;cursor:pointer;transition:transform .08s}
+#egg:active{transform:scale(.92) rotate(-4deg)}
+#col img{width:84%}
+.row img{width:48px;height:48px}
+.row .nm{display:flex;align-items:center;gap:10px}
+.bar{height:12px;background:#352f50;border-radius:8px;margin:18px 8px 10px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--egg);transition:width .15s}
+#msg{min-height:26px;color:var(--mut)}
+h2{width:100%;max-width:420px;font-size:18px;margin:26px 0 10px}
+#col{width:100%;max-width:420px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+#col div{background:var(--panel);border-radius:14px;aspect-ratio:1;display:grid;place-items:center;font-size:30px}
+#col .empty{opacity:.35;font-size:20px}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--panel);padding:8px 8px calc(8px + env(safe-area-inset-bottom));gap:8px}
+nav button{flex:1;margin:0;padding:10px 2px;font-size:14px;background:transparent;color:var(--mut)}
+.seg{display:flex;gap:8px;margin-bottom:12px}.seg button{margin:0;background:var(--panel);color:var(--mut)}.seg button.on{background:var(--duck);color:#2b2200}
+.row.me{outline:2px solid var(--duck)}.rk{min-width:28px;font-weight:800;color:var(--mut)}
+nav button.on{background:var(--bg);color:var(--duck)}
+body{padding-bottom:90px}
+.tab{width:100%;max-width:420px;display:none;flex-direction:column;align-items:center}
+.tab.on{display:flex}
+.row{width:100%;background:var(--panel);border-radius:16px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.row button{margin:0;padding:8px 14px;font-size:14px}
+.row button[disabled]{background:#352f50;color:var(--mut)}
+button{font:inherit;font-weight:800;border:0;border-radius:14px;padding:12px 18px;background:var(--duck);color:#2b2200;margin-top:14px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div id="user">مرحباً</div>
+  <div>🪙 <span id="coins">0</span><small>المستوى <span id="lvl">1</span></small></div>
+</div>
+
+<div class="tab on" id="t-game"><div class="stage">
+  <img id="egg" src="/static/ducks/egg.svg" alt="بيضة" draggable="false">
+  <div class="bar"><i id="fill"></i></div>
+  <div id="msg">اضغط على البيضة لتفقس</div>
+  <button id="claim">جمع العملات اليومية</button>
+</div>
+
+<div class="row" style="margin-top:12px"><span id="incinfo"></span><button id="collect">اجمع</button></div>
+<h2>مجموعة البط (<span id="n">0</span>)</h2>
+<div id="col"></div></div>
+<div class="tab" id="t-shop"><h2>سوق البط</h2><div id="shop" style="width:100%"></div></div>
+<div class="tab" id="t-board"><h2>الترتيب</h2>
+  <div class="seg"><button class="on" data-by="coins">الأغنى</button><button data-by="ducks">الأكثر بطاً</button></div>
+  <div id="board" style="width:100%"></div>
+  <div class="row me" id="myrank" style="margin-top:6px"></div>
+</div>
+<div class="tab" id="t-tasks"><h2>المهام</h2><div id="tasks" style="width:100%"></div></div>
+<div class="tab" id="t-friends"><h2>الأصدقاء</h2>
+  <div class="row"><span>عدد المدعوين</span><b id="refs">0</b></div>
+  <div class="row"><span id="refinfo"></span></div>
+  <button id="share">دعوة صديق</button>
+  <button id="copy" style="background:var(--panel);color:var(--tx)">نسخ الرابط</button>
+</div>
+<nav><button class="on" data-t="game">اللعبة</button><button data-t="shop">السوق</button><button data-t="board">الترتيب</button><button data-t="tasks">المهام</button><button data-t="friends">الأصدقاء</button></nav>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg){ tg.ready(); tg.expand(); tg.setHeaderColor?.('#15131f'); tg.setBackgroundColor?.('#15131f'); }
+
+const $ = id => document.getElementById(id);
+const buzz = t => tg?.HapticFeedback?.impactOccurred(t);
+let st = {coins:0, taps:0, ducks:[], taps_to_hatch:10, next_claim:0, income:0, pending:0, cap_hours:3};
+
+async function api(path, method="GET"){
+  try{
+    const r = await fetch("/api/"+path, {method, headers:{Authorization:"tma "+(tg?.initData||"")}});
+    if(!r.ok) throw new Error(r.status);
+    st = await r.json(); st._t = Date.now();
+    if (st.msg) $("msg").textContent = st.msg;
+  }catch(e){ $("msg").textContent = "تعذر الاتصال بالسيرفر، حاول مرة أخرى"; }
+  render();
+}
+
+function updateInc(){
+  const full = st.income * st.cap_hours;
+  const dt = (Date.now() - (st._t || Date.now())) / 1000;
+  const p = Math.floor(Math.min(st.pending + dt * st.income / 3600, full));
+  $("incinfo").textContent = "الدخل " + st.income + " عملة/ساعة، المتراكم " + p + (full && p >= full ? " (ممتلئ، اجمعه)" : "");
+  $("collect").disabled = p < 1;
+}
+
+function render(){
+  updateInc();
+  $("coins").textContent = st.coins;
+  $("lvl").textContent = 1 + Math.floor(st.ducks.length/5);
+  $("fill").style.width = (st.taps/st.taps_to_hatch*100)+"%";
+  $("egg").src = "/static/ducks/" + (st.taps > st.taps_to_hatch/2 ? "egg_crack" : "egg") + ".svg";
+  $("n").textContent = st.ducks.length;
+  if (!st.msg) $("msg").textContent = st.taps ? "باقي "+(st.taps_to_hatch-st.taps)+" ضغطات" : "اضغط على البيضة لتفقس";
+  if (st.name) $("user").textContent = "مرحباً " + st.name;
+  $("refs").textContent = st.refs||0;
+  $("refinfo").textContent = "تحصل على " + (st.ref_bonus||0) + " عملة عن كل صديق ينضم برابطك";
+  $("tasks").innerHTML = "";
+  (st.tasks||[]).forEach(t => {
+    const r = document.createElement("div"); r.className = "row";
+    r.innerHTML = "<span></span><button></button>";
+    r.firstChild.textContent = t.title + " (+" + t.reward + ")";
+    const b = r.lastChild; b.textContent = t.done ? "تم" : "استلم"; b.disabled = t.done;
+    b.onclick = () => api("task/"+t.id, "POST");
+    $("tasks").appendChild(r);
+  });
+  const shop = $("shop"); shop.innerHTML = "";
+  (st.shop||[]).forEach(it => {
+    const r = document.createElement("div"); r.className = "row";
+    r.innerHTML = '<span class="nm"><img alt=""><span></span></span><button></button>';
+    r.querySelector("img").src = "/static/ducks/" + it.id + ".svg";
+    r.querySelector(".nm span").textContent = ((st.names||{})[it.id] || it.id) + " (+" + it.income + "/ساعة)";
+    const b = r.lastChild; b.textContent = "🪙 " + it.price; b.disabled = st.coins < it.price;
+    b.onclick = () => api("buy/"+it.id, "POST");
+    shop.appendChild(r);
+  });
+  const col = $("col"); col.innerHTML = "";
+  const slots = Math.max(15, Math.ceil(st.ducks.length/5)*5);
+  for (let i=0;i<slots;i++){
+    const d = document.createElement("div");
+    if (st.ducks[i]) d.innerHTML = '<img src="/static/ducks/'+st.ducks[i]+'.svg" alt="">'; else { d.className="empty"; d.innerHTML='<img src="/static/ducks/egg.svg" alt="">'; }
+    col.appendChild(d);
+  }
+}
+
+$("egg").addEventListener("click", () => { buzz("light"); api("tap","POST"); });
+$("collect").addEventListener("click", () => api("collect","POST"));
+setInterval(updateInc, 1000);
+$("claim").addEventListener("click", () => api("claim","POST"));
+let boardBy = "coins";
+async function loadBoard(by){
+  boardBy = by;
+  document.querySelectorAll(".seg button").forEach(x => x.classList.toggle("on", x.dataset.by === by));
+  try{
+    const r = await fetch("/api/leaderboard?by="+by, {headers:{Authorization:"tma "+(tg?.initData||"")}});
+    if(!r.ok) throw new Error(r.status);
+    const d = await r.json(), unit = by === "coins" ? "🪙 " : "🦆 ";
+    $("board").innerHTML = "";
+    d.top.forEach(t => {
+      const row = document.createElement("div"); row.className = "row" + (t.me ? " me" : "");
+      row.innerHTML = '<span><b class="rk"></b> <span class="nm2"></span></span><b class="v"></b>';
+      row.querySelector(".rk").textContent = t.rank;
+      row.querySelector(".nm2").textContent = t.name;
+      row.querySelector(".v").textContent = unit + t.value;
+      $("board").appendChild(row);
+    });
+    $("myrank").textContent = "ترتيبك: " + d.me.rank + "  |  " + unit + d.me.value;
+  }catch(e){ $("board").textContent = "تعذر تحميل الترتيب"; }
+}
+document.querySelectorAll(".seg button").forEach(b => b.onclick = () => loadBoard(b.dataset.by));
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x===b));
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.id==="t-"+b.dataset.t));
+  if (b.dataset.t === "board") loadBoard(boardBy);
+});
+$("share").onclick = () => {
+  if (!st.ref_link){ $("refinfo").textContent = "رابط الدعوة غير مفعّل بعد على السيرفر"; return; }
+  const u = "https://t.me/share/url?url=" + encodeURIComponent(st.ref_link) + "&text=" + encodeURIComponent("تعال افقس البيض معي في مزرعة البط!");
+  tg ? tg.openTelegramLink(u) : window.open(u);
+};
+$("copy").onclick = () => { if (st.ref_link){ navigator.clipboard?.writeText(st.ref_link); $("refinfo").textContent = "تم نسخ الرابط"; } };
+api("state");
+</script>
+</body>
+</html>
